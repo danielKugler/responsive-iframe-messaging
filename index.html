@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<title>iFrame API [parent]</title>
+	<style type="text/css" rel="stylesheet">
+		*            { margin: 0; padding: 0; border: none; outline: none; }
+		html         { width: 100%; height: 100%; }
+		body         { padding: 2%; width: 96%; height: 96%; font-family: sans-serif; }
+        iframe       { width: 80%;  border: 0; margin-left: 10%;}
+        p.snippet    { padding: 2%; border: 1px solid gray; font-size: 13px; }
+		h1           { margin-bottom: 20px; font-size: 24px; }
+		button       { margin-bottom: 20px; padding: 10px; font-size: 13px; font-weight: bold; color: darkslategray; cursor: pointer; background: transparent; border: 2px solid darkseagreen; }
+		button:hover { border-color: darkslategray; background: darkseagreen; }
+	</style>
+	<script>
+        
+        var testParent = {};
+
+        testParent.getIframe = function () { return document.getElementById('test-iframe'); };
+        
+        /* ---- DATA STRUCTURE --------------------------------------------------------- */
+        testParent.demoData = {
+            namespace: 'IFAPP',                  // namespace to identify itself as a trusted task.
+            task: {                             // Task-Object to be computed in the parent window.
+                name: 'something',              // Name of the task.
+                param: {                        // Task parameter(s) as key/value-pairs.
+                    first: 'messageFromParent'
+                }
+            }
+        };
+        /* ---- DATA STRUCTURE --------------------------------------------------------- */
+        
+        
+        testParent.postMessageToIFrame = function () {
+			var _iFrame = testParent.getIframe();
+			_iFrame.contentWindow.postMessage(JSON.stringify(testParent.demoData), _iFrame.src);
+		};
+        
+        testParent.resizeIframe = function (__source, __resize) {
+            var _iFrame = testParent.getIframe();
+
+            if ( ( _iFrame.contentWindow || _iFrame.documentWindow ) === __source) {
+                _iFrame.style.height = __resize.height + "px";
+                return;
+            }
+        };
+        
+        testParent.doSomething = function (__task) {
+            document.getElementById('msg').innerHTML = 'received: ' + __task.param.first;
+		};
+
+		testParent.onWindowMessage = function (__event) {
+			var _iFrame = testParent.getIframe();
+            var _message;
+
+			try { _message = JSON.parse(__event.data); }
+			catch (__exception) { console.error('The given event data is not valid JSON:', __event.data); }
+            
+			if (_iFrame && _message && _message.namespace === 'IFAPP') {                                
+				switch(_message.task.name) {
+                    case 'resize':
+                        testParent.resizeIframe(__event.source, _message.task.param);
+                        break;
+                    case 'something':
+                        testParent.doSomething(_message.task);
+                        break;
+					default: 
+                        console.error('Task "' + _message.task.name + '" not found.');
+                        break;
+				}
+			}
+		};
+		
+        
+        window.addEventListener('message', testParent.onWindowMessage, false);
+		
+	</script>
+</head>
+<body>
+	<h1>Parent</h1>
+	<button onclick="testParent.postMessageToIFrame()">Post _message to iFrame</button>
+	<p class="snippet" id="msg"></p>
+	<br>
+	<br>
+	<iframe id="test-iframe" src="iframe.html" width="100%" height="600px" frameborder="0">
+		<p>Your browser does not support _iframes. Please update.</p>
+	</iframe>
+</body>
+</html>
