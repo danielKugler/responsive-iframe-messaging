@@ -8,8 +8,8 @@
 		html         { width: 100%; height: 100%; }
 		body         { padding: 2%; width: 96%; font-family: sans-serif; background: #cdcdcd;}
 		h1           { margin-bottom: 20px; font-size: 24px; }
-        p            { font-size: 13px; line-height: 18px; }
-        .image       { width: 100%; height: auto; }
+		p            { font-size: 13px; line-height: 18px; }
+		.image       { width: 100%; height: auto; }
 		p.snippet    { padding: 2%; border: 1px solid gray; font-size: 13px; }
 		button       { margin-bottom: 40px; padding: 10px; font-size: 13px; font-weight: bold; color: darkslategray; cursor: pointer; background: transparent; border: 2px solid darkseagreen; }
 		button:hover { border-color: darkslategray; background: darkseagreen; }
@@ -24,97 +24,94 @@
 
         /* ---- DATA STRUCTURE --------------------------------------------------------- */
         testIframe.demoData = {
-            namespace: 'IFAPP',                 // namespace to identify itself as a trusted task.
-            task: {                             // Task-Object to be computed in the parent window.
-                name: 'something',              // Name of the task.
-                param: {                        // Task parameter(s) as key/value-pairs.
-                    first: 'messageFromIframe'
-                }
-            }
+		namespace: 'IFAPP',                 // namespace to identify itself as a trusted task.
+		task: {                             // Task-Object to be computed in the parent window.
+			name: 'something',              // Name of the task.
+			param: {                        // Task parameter(s) as key/value-pairs.
+				first: 'messageFromIframe'
+			}
+		}
         };
         /* ---- DATA STRUCTURE --------------------------------------------------------- */
         
         testIframe.requestAnimFrame = ( function (){
-
-            return  window.requestAnimationFrame       ||
-                    window.webkitRequestAnimationFrame ||
-                    window.mozRequestAnimationFrame    ||
-                    window.oRequestAnimationFrame      ||
-                    window.msRequestAnimationFrame     ||
-                    function( callback ){
-                        window.setTimeout(callback, 1000 / 60);
-                    };
+		return  window.requestAnimationFrame       ||
+			window.webkitRequestAnimationFrame ||
+			window.mozRequestAnimationFrame    ||
+			window.oRequestAnimationFrame      ||
+			window.msRequestAnimationFrame     ||
+			function( callback ){
+				window.setTimeout(callback, 1000 / 60);
+			};
         })();
         
         testIframe.resizeFrame = function (){
-            var _windowHeight = document.body ? document.body.offsetHeight : testIframe.htmlElement.offsetHeight ;
+		var _windowHeight = document.body ? document.body.offsetHeight : testIframe.htmlElement.offsetHeight ;
             
-            if ( testIframe.windowHeight === _windowHeight ) {
-                testIframe.requestAnimFrame.call( window, testIframe.resizeFrame );
-                return false;
-            }
-            
-            testIframe.windowHeight = _windowHeight;
-            
-            // Same Origin iFrame
-            try { window.frameElement.style.height = windowHeight + 'px'; } 
-            // Cross Origin iFrame
-            catch ( e ) {
-                var _sendData = {
-					namespace: 'IFAPP',
-					task: {
-						name: 'resize',
-						param: {
-							height: _windowHeight
-						}
+		if ( testIframe.windowHeight === _windowHeight ) {
+			testIframe.requestAnimFrame.call( window, testIframe.resizeFrame );
+			return false;
+		}
+
+		testIframe.windowHeight = _windowHeight;
+
+		// Same Origin iFrame
+		try { window.frameElement.style.height = windowHeight + 'px'; } 
+		// Cross Origin iFrame
+		catch ( e ) {
+			var _sendData = {
+				namespace: 'IFAPP',
+				task: {
+					name: 'resize',
+					param: {
+						height: _windowHeight
 					}
-				};
-                testIframe.postMessageToParent( _sendData );
-            }
-            testIframe.requestAnimFrame.call( window, testIframe.resizeFrame );
+				}
+			};
+                	testIframe.postMessageToParent( _sendData );
+		}
+		testIframe.requestAnimFrame.call( window, testIframe.resizeFrame );
         };
         
         
         testIframe.postMessageToParent = function ( __sendData ) {
-            window.parent.postMessage(
-				JSON.stringify( __sendData ),
-				testIframe.targetDomain
-			);
+		window.parent.postMessage(
+			JSON.stringify( __sendData ),
+			testIframe.targetDomain
+		);
         }; 
         
         testIframe.onWindowMessage = function ( __event ) {
-			var _message;
+		var _message;
 
-			try { _message = JSON.parse( __event.data ); }
-			catch (__exception) { console.error( 'The given event data is not valid JSON:', __event.data ); }
+		try { _message = JSON.parse( __event.data ); }
+		catch (__exception) { console.error( 'The given event data is not valid JSON:', __event.data ); }
 
-			if ( _message && _message.namespace === 'IFAPP' ) {
-				switch( _message.task.name ) {
-					case 'something':
-                        testIframe.doSomething( _message.task );
-                        break;
-					default:
-                        console.error('Task "' + _message.task.name + '" not found.');
-                        break;
-				}
+		if ( _message && _message.namespace === 'IFAPP' ) {
+			switch( _message.task.name ) {
+				case 'something':
+					testIframe.doSomething( _message.task );
+					break;
+				default:
+					console.error('Task "' + _message.task.name + '" not found.');
 			}
-		};
+		}
+	};
         
         testIframe.postDemoMessageToParent = function () {
-            testIframe.postMessageToParent( testIframe.demoData );
+		testIframe.postMessageToParent( testIframe.demoData );
         };
         
         testIframe.doSomething = function ( __task ) {
-            document.getElementById( 'msg' ).innerHTML = 'received: ' + __task.param.first;
+		document.getElementById( 'msg' ).innerHTML = 'received: ' + __task.param.first;
         };
         
         
-        
         testIframe.requestAnimFrame.call( window, testIframe.resizeFrame );
+
+	window.addEventListener( 'message', testIframe.onWindowMessage, false );
         
-		window.addEventListener( 'message', testIframe.onWindowMessage, false );
-        
-		
+	
 	</script>
 </head>
 <body>
@@ -122,10 +119,12 @@
 	<button onclick="testIframe.postDemoMessageToParent()">Post message to parent</button>
 	<p class="snippet" id="msg"></p>
 	<br><br>
-	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut inventore maiores repellendus exercitationem quaerat omnis porro blanditiis adipisci at quia reiciendis doloribus ducimus sed facere qui atque optio quae ad temporibus, laborum et dolore totam nisi ipsam!
-    </p>
-    <img src="http://lorempixel.com/400/200/cats/" class="image" alt="of course cats!" />
-    <p>Dolor consectetur nam rerum maxime. Veritatis fugiat reiciendis numquam dolores, quas, laudantium praesentium qui aut ea minus non temporibus mollitia illo laborum doloremque ex, nostrum perspiciatis laboriosam id. At deserunt nam error nisi amet debitis maiores odit dolores architecto tempora fugit veniam aperiam molestias corrupti voluptas praesentium quos cupiditate quod, excepturi iure! Animi, illum placeat! Maxime, ipsam natus maiores, laudantium, deserunt quo modi quidem dolore sapiente optio velit earum quas deleniti nulla doloribus ad similique accusantium ipsum molestiae, voluptatem necessitatibus eius iusto quod?
+	<p>
+		Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut inventore maiores repellendus exercitationem quaerat omnis porro blanditiis adipisci at quia reiciendis doloribus ducimus sed facere qui atque optio quae ad temporibus, laborum et dolore totam nisi ipsam!
+	</p>
+	<img src="http://lorempixel.com/400/200/cats/" class="image" alt="of course cats!" />
+	<p>
+		Dolor consectetur nam rerum maxime. Veritatis fugiat reiciendis numquam dolores, quas, laudantium praesentium qui aut ea minus non temporibus mollitia illo laborum doloremque ex, nostrum perspiciatis laboriosam id. At deserunt nam error nisi amet debitis maiores odit dolores architecto tempora fugit veniam aperiam molestias corrupti voluptas praesentium quos cupiditate quod, excepturi iure! Animi, illum placeat! Maxime, ipsam natus maiores, laudantium, deserunt quo modi quidem dolore sapiente optio velit earum quas deleniti nulla doloribus ad similique accusantium ipsum molestiae, voluptatem necessitatibus eius iusto quod?
 	</p>
 </body>
 </html>
